@@ -1,0 +1,30 @@
+{
+  "name": "adwrap-assessment",
+  "version": "1.0.0",
+  "description": "**Full-stack assessment for ADWrap** – build a media management system with support for **billboards** and **streetpoles**, scoped to unique workspaces. Includes sample data and expectations.",
+  "main": "index.js",
+  "keywords": [],
+  "author": "Derrick",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "pg": "^8.15.6"
+  },
+  "scripts": {
+    "dev": "nodemon src/server.ts",
+    "start": "ts-node src/server.ts",
+    "seed": "ts-node src/scripts/seed.ts",
+    "setup-db": "sh src/scripts/setup-db.sh"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.15.3",
+    "@types/pg": "^8.11.14",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

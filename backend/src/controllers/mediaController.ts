@@ -108,11 +108,15 @@ export const updateMediaItem: RequestHandler<Params> = async (req: Request<Param
   }
 };
 
-export const deleteMediaItem: RequestHandler<Params> = async (req: Request<Params>, res: Response) => {
+export const deleteMediaItem: RequestHandler<Params> = async (req: Request<Params>, res: Response): Promise<void> => {
   const { id } = req.params;
   try {
-    await deleteMediaItemById(Number(id));
-    res.status(200).json({ success: true, message: 'Media item deleted' });
+    const result = await deleteMediaItemById(Number(id));
+    if (!result.success) {
+      res.status(404).json({ success: false, error: result.message });
+    } else {
+      res.status(200).json({ success: true, message: 'Media item deleted' });
+    }
   } catch (err) {
     res.status(500).json({ success: false, error: 'Failed to delete media item', details: err });
   }

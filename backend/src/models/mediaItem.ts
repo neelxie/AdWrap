@@ -7,26 +7,33 @@ export const insertStaticMediaItem = async (data: StaticMedia) => {
   try {
     await client.query('BEGIN');
 
-    await client.query(`
+    const counterRes = await client.query(`
       INSERT INTO media_item_counters (workspace_id, static_counter)
       VALUES ($1, 1)
       ON CONFLICT (workspace_id) DO UPDATE
       SET static_counter = media_item_counters.static_counter + 1
+      RETURNING static_counter
     `, [data.workspace]);
 
-    const counterRes = await client.query(
-      `SELECT static_counter FROM media_item_counters WHERE workspace_id = $1`,
-      [data.workspace]
-    );
     const count = counterRes.rows[0].static_counter;
     const code = `BB-${count}`;
 
-
     const result = await client.query(`
-      INSERT INTO media_items (workspace_id, type, format, location, closest_landmark, availability, number_of_faces, code)
+      INSERT INTO media_items (
+        workspace_id, type, format, location, closest_landmark,
+        availability, number_of_faces, code
+      )
       VALUES ($1, 'static', $2, $3, $4, $5, $6, $7)
       RETURNING id
-    `, [data.workspace, data.format, data.location, data.closestLandmark, data.availability, data.numberOfFaces, code]);
+    `, [
+      data.workspace,
+      data.format,
+      data.location,
+      data.closestLandmark,
+      data.availability,
+      data.numberOfFaces,
+      code
+    ]);
 
     const mediaItemId = result.rows[0].id;
 
@@ -52,17 +59,23 @@ export const insertStreetPoleMediaItem = async (data: StreetPoleMedia) => {
   try {
     await client.query('BEGIN');
 
-    // increment workspace streetpole counter
-    await client.query(`
+    const counterRes = await client.query(`
       INSERT INTO media_item_counters (workspace_id, streetpole_counter)
       VALUES ($1, 1)
       ON CONFLICT (workspace_id) DO UPDATE
       SET streetpole_counter = media_item_counters.streetpole_counter + 1
+      RETURNING streetpole_counter
     `, [data.workspace]);
 
+    const count = counterRes.rows[0].streetpole_counter;
+    const code = `SP-${count}`;
+
     const result = await client.query(`
-      INSERT INTO media_items (workspace_id, type, location, closest_landmark, availability, number_of_street_poles, side_route)
-      VALUES ($1, 'streetpole', $2, $3, $4, $5, $6)
+      INSERT INTO media_items (
+        workspace_id, type, location, closest_landmark,
+        availability, number_of_street_poles, side_route, code
+      )
+      VALUES ($1, 'streetpole', $2, $3, $4, $5, $6, $7)
       RETURNING id
     `, [
       data.workspace,
@@ -71,6 +84,7 @@ export const insertStreetPoleMediaItem = async (data: StreetPoleMedia) => {
       data.availability,
       data.numberOfStreetPoles,
       data.sideRoute,
+      code
     ]);
 
     const mediaItemId = result.rows[0].id;
@@ -90,7 +104,7 @@ export const insertStreetPoleMediaItem = async (data: StreetPoleMedia) => {
     }
 
     await client.query('COMMIT');
-    return { mediaItemId };
+    return { mediaItemId, code };
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
@@ -149,8 +163,98 @@ export const updateMediaItemById = async (id: number, data: Partial<any>) => {
   return result.rows[0];
 };
 
-export const deleteMediaItemById = async (id: number) => {
-  await db.query(`DELETE FROM media_items WHERE id = $1`, [id]);
+// export const deleteMediaItemById = async (id: number) => {
+//   const client = await db.connect();
+
+//   try {
+//     await client.query('BEGIN');
+
+//     const check = await client.query(`SELECT * FROM media_items WHERE id = $1`, [id]);
+//     if (check.rowCount === 0) {
+//       await client.query('ROLLBACK');
+//       return { success: false, message: 'Media item not found' };
+//     }
+
+//     const type = check.rows[0].type;
+
+//     if (type === 'static') {
+//       await client.query(`DELETE FROM static_media_faces WHERE media_item_id = $1`, [id]);
+//     } else if (type === 'streetpole') {
+//       await client.query(`DELETE FROM routes WHERE media_item_id = $1`, [id]);
+//     }
+
+//     await client.query(`DELETE FROM media_items WHERE id = $1`, [id]);
+
+//     await client.query('COMMIT');
+//     return { success: true, message: 'Media item deleted successfully' };
+//   } catch (err) {
+//     await client.query('ROLLBACK');
+//     throw err;
+//   } finally {
+//     client.release();
+//   }
+// };
+// export const deleteMediaItemById = async (id: number): Promise<{ success: boolean; message: string }> => {
+//   const client = await db.connect();
+
+//   try {
+//     await client.query('BEGIN');
+
+//     const check = await client.query(`SELECT * FROM media_items WHERE id = $1`, [id]);
+//     if (check.rowCount === 0) {
+//       await client.query('ROLLBACK');
+//       return { success: false, message: 'Media item not found' };
+//     }
+
+//     const type = check.rows[0].type;
+
+//     if (type === 'static') {
+//       await client.query(`DELETE FROM static_media_faces WHERE media_item_id = $1`, [id]);
+//     } else if (type === 'streetpole') {
+//       await client.query(`DELETE FROM routes WHERE media_item_id = $1`, [id]);
+//     }
+
+//     await client.query(`DELETE FROM media_items WHERE id = $1`, [id]);
+
+//     await client.query('COMMIT');
+//     return { success: true, message: 'Media item deleted successfully' };
+//   } catch (err) {
+//     await client.query('ROLLBACK');
+//     throw err;
+//   } finally {
+//     client.release();
+//   }
+// };
+export const deleteMediaItemById = async (id: number): Promise<{ success: boolean; message: string }> => {
+  const client = await db.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const check = await client.query(`SELECT * FROM media_items WHERE id = $1`, [id]);
+    if (check.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return { success: false, message: 'Media item not found' };
+    }
+
+    const type = check.rows[0].type;
+
+    if (type === 'static') {
+      await client.query(`DELETE FROM static_media_faces WHERE media_item_id = $1`, [id]);
+    } else if (type === 'streetpole') {
+      await client.query(`DELETE FROM routes WHERE media_item_id = $1`, [id]);
+    }
+
+    await client.query(`DELETE FROM media_items WHERE id = $1`, [id]);
+
+    await client.query('COMMIT');
+    return { success: true, message: 'Media item deleted successfully' };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 };
 
 export const searchMediaItems = async (query: string) => {

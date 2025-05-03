@@ -15,9 +15,9 @@ async function seed() {
 
     // 2. Seed Static Media
     const staticRes = await db.query(`
-      INSERT INTO media_items (id, workspace_id, type, format, location, closest_landmark, availability, number_of_faces)
+      INSERT INTO media_items (id, workspace_id, type, format, location, closest_landmark, availability, number_of_faces, code)
       VALUES 
-        (1, 1, 'static', 'standard', 'Iyana Oworo, Lagos', 'Third Mainland Bridge', 'Available', 2)
+        (1, 1, 'static', 'standard', 'Iyana Oworo, Lagos', 'Third Mainland Bridge', 'Available', 2, 'BB-1')
       RETURNING id;
     `);
     const staticMediaItemId = staticRes.rows[0].id;
@@ -31,9 +31,9 @@ async function seed() {
 
     // 3. Seed Streetpole Media
     const streetpoleRes = await db.query(`
-      INSERT INTO media_items (id, workspace_id, type, location, closest_landmark, availability, number_of_street_poles, side_route)
+      INSERT INTO media_items (id, workspace_id, type, location, closest_landmark, availability, number_of_street_poles, side_route, code)
       VALUES 
-        (2, 2, 'streetpole', 'Aminu Kano Crescent, Abuja', 'Wuse Market', 'Available', 3, ARRAY['North', 'South'])
+        (2, 2, 'streetpole', 'Aminu Kano Crescent, Abuja', 'Wuse Market', 'Available', 3, ARRAY['North', 'South'], 'SP-1')
       RETURNING id;
     `);
     const streetpoleId = streetpoleRes.rows[0].id;

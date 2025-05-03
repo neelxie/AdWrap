@@ -1,11 +1,11 @@
-# Media Management Platform
+# AdWrap
 
 This is a full-stack application for managing media items (such as static billboards and street poles) within workspaces. 
 
 ## Project Structure
 
 ```
-my-media-management-app/
+adwrap/
 │
 ├── backend/       # Node.js + Express + PostgreSQL backend
 ├── frontend/      # React + Vite + Redux Toolkit + Tailwind CSS frontend

@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
-import workspaceReducer from './features/workspace/workspaceSlice';
+import workspaceSlice from './features/workspace/workspaceSlice';
+import mediaItemSlice from './features/mediaItem/mediaItemSlice';
 
 export const store = configureStore({
   reducer: {
-    workspaces: workspaceReducer,
+    workspace: workspaceSlice,
+    mediaItem: mediaItemSlice,
   },
 });
 

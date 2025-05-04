@@ -1,6 +1,10 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface WorkspaceState {
+  workspaces: Workspace[];
+}
+
+interface Workspace {
   name: string;
   email: string;
   location: string;
@@ -8,21 +12,18 @@ interface WorkspaceState {
 }
 
 const initialState: WorkspaceState = {
-  name: '',
-  email: '',
-  location: '',
-  address: '',
+  workspaces: [],
 };
 
 const workspaceSlice = createSlice({
-  name: 'workspace',
+  name: "workspace",
   initialState,
   reducers: {
-    setWorkspace(state, action: PayloadAction<WorkspaceState>) {
-      return action.payload;
+    setWorkspace(state, action: PayloadAction<Workspace[]>) {
+      state.workspaces = action.payload;
     },
-    clearWorkspace() {
-      return initialState;
+    clearWorkspace(state) {
+      state.workspaces = [];
     },
   },
 });

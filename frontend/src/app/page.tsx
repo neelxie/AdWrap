@@ -16,46 +16,43 @@ type Workspace = {
 
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-
-const mockWorkspaces: Workspace[] = [
-  {
-    id: "1",
-    name: "Kampala Ads",
-    email: "kampala@ads.com",
-    location: "Kampala",
-    address: "123 Kampala St, Kampala"
-  },
-  { id: "2", name: "Jinja Media", email: "hello@jinja.com", location: "Jinja", address: "123 Jinja St, Jinja" },
-  { id: "3", name: "Gulu Boards", email: "gulu@boards.com", location: "Gulu", address: "123 Gulu St, Gulu" },
-];
+import { RootState } from "@/redux/store";
+import { setWorkspace } from "@/redux/features/workspace/workspaceSlice";
+import { setMediaItem } from "@/redux/features/mediaItem/mediaItemSlice";
+import Link from "next/link";
 
 export default function WorkspaceDashboard() {
+  const [search, setSearch] = useState("");
   const dispatch = useDispatch(); 
-  // const workspaces = useSelector((state) => state.workspace.workspaces);
-  const setWorkspaces = (workspaces: Workspace[]) => dispatch({ type: 'workspace/setWorkspaces', payload: workspaces });
-
+  const workspaces = useSelector((state: RootState) => state.workspace.workspaces);
+  
   useEffect(() => {
+    const controller = new AbortController();
     const fetchWorkspaces = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/workspaces`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/workspaces${search ? `/search?q=${search}` : '/'}`, { signal: controller.signal });
         const data = await res.json();
-        dispatch(setWorkspaces(data));
+        dispatch(setWorkspace(data));
       } catch (error) {
         console.error('Failed to fetch workspaces:', error);
       }
     };
+    const fetchMediaItems = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/media/`);
+        const data = await res.json();
+        dispatch(setMediaItem(data));
+      } catch (error) {
+        console.error('Failed to fetch media items:', error);
+      }
+    };
 
     fetchWorkspaces();
-  }, [dispatch]);
-
-
-
-  const [search, setSearch] = useState("");
-  // const [workspaces, setWorkspaces] = useState(mockWorkspaces);
-
-  const filtered = workspaces?.filter((ws) =>
-    ws.location.toLowerCase().includes(search.toLowerCase())
-  );
+    fetchMediaItems();
+    return () => {
+      controller.abort();
+    };
+  }, [dispatch, search]);
 
   return (
     <main className="p-8 max-w-5xl mx-auto bg-white">
@@ -78,10 +75,12 @@ export default function WorkspaceDashboard() {
         <Button className="bg-black text-white hover:bg-gray-900">
           + New Workspace
         </Button>
-        <Button className="bg-white text-dark hover:bg-gray-100 outline">
-          <List className="w-4 h-4 text-muted-foreground mr-2" />
-          View media items
-        </Button>
+        <Link href="/media">
+          <Button className="bg-white text-dark hover:bg-blue-100 outline cursor-pointer">
+            <List className="w-4 h-4 text-muted-foreground mr-2" />
+            View media items
+          </Button>
+        </Link>
       </div>
 
       <div className="overflow-x-auto">
@@ -111,8 +110,8 @@ export default function WorkspaceDashboard() {
                 key={index}
                 className={
                   index < workspaces.length - 1
-                    ? "border-b border-gray-300"
-                    : ""
+                    ? "border-b border-gray-300 hover:bg-blue-100 cursor-pointer"
+                    : "hover:bg-blue-100 cursor-pointer"
                 }
               >
                 <td className="px-4 py-2">{workspace.name}</td>
@@ -131,7 +130,7 @@ export default function WorkspaceDashboard() {
         </table>
       </div>
 
-      {filtered.length === 0 && (
+      {workspaces.length === 0 && (
         <p className="text-center text-muted-foreground mt-12">
           No workspaces found.
         </p>

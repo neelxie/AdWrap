@@ -133,6 +133,22 @@ export const fetchAllMediaItems = async (limit?: number, offset?: number) => {
       total = items.length;
     }
 
+    for (const item of items) {
+      if (item.type === 'static') {
+        const faceRes = await db.query(
+          'SELECT * FROM static_media_faces WHERE media_item_id = $1',
+          [item.id]
+        );
+        item.staticMediaFaces = faceRes.rows;
+      } else if (item.type === 'streetpole') {
+        const routeRes = await db.query(
+          'SELECT * FROM routes WHERE media_item_id = $1',
+          [item.id]
+        );
+        item.routes = routeRes.rows;
+      }
+    }
+
     return { items, total };
   } catch (error) {
     console.error('Error fetching media items:', error);

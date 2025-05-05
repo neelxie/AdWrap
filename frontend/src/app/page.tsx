@@ -23,27 +23,36 @@ import Link from "next/link";
 
 export default function WorkspaceDashboard() {
   const [search, setSearch] = useState("");
-  const dispatch = useDispatch(); 
-  const workspaces = useSelector((state: RootState) => state.workspace.workspaces);
-  
+  const dispatch = useDispatch();
+  const workspaces = useSelector(
+    (state: RootState) => state.workspace.workspaces
+  );
+
   useEffect(() => {
     const controller = new AbortController();
     const fetchWorkspaces = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/workspaces${search ? `/search?q=${search}` : '/'}`, { signal: controller.signal });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/workspaces${
+            search ? `/search?q=${search}` : "/"
+          }`,
+          { signal: controller.signal }
+        );
         const data = await res.json();
         dispatch(setWorkspace(data));
       } catch (error) {
-        console.error('Failed to fetch workspaces:', error);
+        console.error("Failed to fetch workspaces:", error);
       }
     };
     const fetchMediaItems = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/media/`);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/media/`
+        );
         const data = await res.json();
         dispatch(setMediaItem(data));
       } catch (error) {
-        console.error('Failed to fetch media items:', error);
+        console.error("Failed to fetch media items:", error);
       }
     };
 
@@ -55,7 +64,7 @@ export default function WorkspaceDashboard() {
   }, [dispatch, search]);
 
   return (
-    <main className="p-8 max-w-5xl mx-auto bg-white">
+    <main className="p-8 max-w-6xl mx-auto bg-white">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Workspaces</h1>
       </div>
@@ -116,10 +125,13 @@ export default function WorkspaceDashboard() {
               >
                 <td className="px-4 py-2">{workspace.name}</td>
                 <td className="px-4 py-2">{workspace.email}</td>
-                <td className="px-4 py-2 hidden md:table-cell">{workspace.address}</td>
-                <td className="px-4 py-2 hidden sm:table-cell">{workspace.location}</td>
+                <td className="px-4 py-2 hidden md:table-cell">
+                  {workspace.address}
+                </td>
+                <td className="px-4 py-2 hidden sm:table-cell">
+                  {workspace.location}
+                </td>
                 <td className="px-4 py-2">
-                  
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                     <img src="/actions.svg" alt="Actions" />
                   </span>

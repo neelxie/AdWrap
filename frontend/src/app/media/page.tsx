@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { setMediaItem } from "@/redux/features/mediaItem/mediaItemSlice";
 import { setWorkspace } from "@/redux/features/workspace/workspaceSlice";
 import { RootState } from "@/redux/store";
-import { ChevronLeft, ChevronRight, Circle, Search } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Circle,
+  Search,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -48,7 +54,7 @@ export default function Home() {
     fetchMediaItems();
   }, [dispatch, search]);
   console.log(expandedRowId);
-  console.log(staticMediaItems);
+  console.log(mediaItems);
   return (
     <main className="p-8 max-w-6xl mx-auto bg-white">
       <div className="flex items-center justify-between mb-6">
@@ -70,8 +76,30 @@ export default function Home() {
 
       <Tabs defaultValue="staticmedia" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="staticmedia">Static media</TabsTrigger>
-          <TabsTrigger value="streetpoles">Street poles</TabsTrigger>
+          <TabsTrigger
+            value="staticmedia"
+            className="data-[state=active]:bg-white shadow-none data-[state=active]:font-bold data-[state=active]:text-blue-400 data-[state=active]:border-b-blue-400 data-[state=active]:border-b-3 data-[state=active]:shadow-none rounded-none"
+          >
+            {" "}
+            <div className="flex items-center gap-2">
+              Static media{" "}
+              <span className="inline-flex items-center justify-center px-2 py-0.5 h-5 bg-gray-300 rounded-full no-underline">
+                {staticMediaItems?.length}
+              </span>
+            </div>
+          </TabsTrigger>
+          <TabsTrigger
+            value="streetpoles"
+            className="data-[state=active]:bg-white shadow-none data-[state=active]:font-bold data-[state=active]:text-blue-400 data-[state=active]:border-b-blue-400 data-[state=active]:border-b-3 data-[state=active]:shadow-none rounded-none"
+          >
+            {" "}
+            <div className="flex items-center gap-2 ">
+              Street poles{" "}
+              <span className="inline-flex items-center justify-center px-2 py-0.5 bg-gray-300 rounded-full no-underline">
+                {streetpoleMediaItems?.length}
+              </span>
+            </div>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="staticmedia">
@@ -82,7 +110,7 @@ export default function Home() {
                   <th className="text-left px-4 py-2 font-semibold border-b border-gray-300">
                     <input type="checkbox" />
                   </th>
-                  <th className="text-left px-4 py-2 font-semibold border-b border-gray-300">
+                  <th className="text-left px-4 py-2 font-semibold border-b border-gray-300 text-nowrap">
                     Media ID
                   </th>
                   <th className="text-left px-4 py-2 font-semibold border-b border-gray-300">
@@ -91,7 +119,7 @@ export default function Home() {
                   <th className="text-left px-4 py-2 font-semibold border-b border-gray-300 hidden md:table-cell">
                     Description
                   </th>
-                  <th className="text-left px-4 py-2 font-semibold border-b border-gray-300 hidden sm:table-cell">
+                  <th className=" text-nowrap text-left px-4 py-2 font-semibold border-b border-gray-300 hidden sm:table-cell">
                     Media format
                   </th>
                   <th className="text-left px-4 py-2 font-semibold border-b border-gray-300 hidden sm:table-cell">
@@ -115,16 +143,19 @@ export default function Home() {
                       key={index}
                       className={
                         index < staticMediaItems.length - 1
-                          ? "border-b border-gray-300"
-                          : ""
+                          ? "border-b border-gray-300 hover:bg-blue-100"
+                          : "hover:bg-blue-100"
                       }
                     >
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2 grid items-center justify-center">
                         <input type="checkbox" />
+                        {expandedRowId === item.id && (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
                       </td>
                       <td
                         className="px-4 py-2 text-blue-500"
-                        onClick={() => toggleExpand(item?._id)}
+                        onClick={() => toggleExpand(item?.id)}
                       >
                         {item?.code}
                       </td>
@@ -141,45 +172,41 @@ export default function Home() {
                         {item?.number_of_faces}
                       </td>
                       <td className="px-4 py-2 hidden sm:table-cell">
-                        <td className="px-4 py-2 hidden sm:table-cell">
-                          {(() => {
-                            type StaticMediaFaces = {
-                              availability: string;
-                            };
-                            const faces: StaticMediaFaces[] =
-                              item?.staticMediaFaces || [];
-                            const total: number = faces.length;
-                            const booked: number = faces.filter(
-                              (face: StaticMediaFaces) =>
-                                face.availability === "Booked"
-                            ).length;
+                        {(() => {
+                          type StaticMediaFaces = {
+                            availability: string;
+                          };
+                          const faces: StaticMediaFaces[] =
+                            item?.staticMediaFaces || [];
+                          const total: number = faces.length;
+                          const booked: number = faces.filter(
+                            (face: StaticMediaFaces) =>
+                              face.availability === "Booked"
+                          ).length;
 
-                            if (booked > 0) {
-                              return (
-                                <span className="flex text-nowrap items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                  <Circle size={15} fill="green" /> &nbsp;
-                                  {booked}/{total} Occupied
-                                </span>
-                              );
-                            } else {
-                              return (
-                                <span className="flex text-nowrap items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                  <Circle size={15} fill="red" />
-                                  &nbsp;0/{total}Vacant
-                                </span>
-                              );
-                            }
-                          })()}
-                        </td>
+                          if (booked > 0) {
+                            return (
+                              <span className="flex text-nowrap items-center px-2.5 py-0.5 rounded-full bg-green-100 text-xs text-green-800">
+                                <Circle size={15} fill="green" /> &nbsp;
+                                {booked}/{total} Occupied
+                              </span>
+                            );
+                          } else {
+                            return (
+                              <span className="flex text-nowrap items-center px-2.5 py-0.5 rounded-full bg-red-100 text-xs text-red-800">
+                                <Circle size={15} fill="red" />
+                                &nbsp;0/{total}Vacant
+                              </span>
+                            );
+                          }
+                        })()}
                       </td>
                       <td className="px-4 py-2 hidden sm:table-cell">
-                        <td className="px-4 py-2 hidden sm:table-cell">
-                          {item?.staticMediaFaces?.reduce(
-                            (acc: number, face: any) =>
-                              acc + (Number(face.rent) || 0),
-                            0
-                          )}
-                        </td>
+                        {item?.staticMediaFaces?.reduce(
+                          (acc: number, face: any) =>
+                            acc + (Number(face.rent) || 0),
+                          0
+                        )}
                       </td>
                       <td className="px-4 py-2">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -188,27 +215,41 @@ export default function Home() {
                       </td>
                     </tr>
                     {expandedRowId === item.id &&
-                      item.staticMediaFaces.map((face: any) => (
+                      item.staticMediaFaces.map((face: any, index: number) => (
                         <tr key={face.id} className="bg-gray-50">
-                          <td className="px-4 py-2"></td>
-                          <td className="px-4 py-2 text-gray-600">
-                            Face {face.faceNumber}
+                          <td className="px-4 py-2">
+                            <input type="checkbox" />
                           </td>
-                          <td className="px-4 py-2 text-gray-600" colSpan={5}>
-                            {face.availability === "Available" ? (
-                              <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                                Available
+                          <td className="px-4 py-2 text-blue-500">{face.id}</td>
+                          <td className="px-4 py-2 text-gray-600">
+                            {item.location}
+                          </td>
+                          <td className="px-4 py-2 text-gray-600 text-ellipsis max-w[120px] overflow-hidden whitespace-nowrap">
+                            {face.description}
+                          </td>
+                          <td className="px-4 py-2 text-gray-600">
+                            {item.format ? item.format : "None"}
+                          </td>
+                          <td className="px-4 py-2 text-gray-600">
+                            {index + 1}
+                          </td>
+                          <td className="px-4 py-2 text-gray-600">
+                            {face.availability === "Booked" ? (
+                              <span className="flex bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                <Circle size={15} fill="green" /> &nbsp;Occupied
                               </span>
                             ) : (
-                              <span className="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
-                                Not Available
+                              <span className="flex bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
+                                <Circle size={15} fill="red" /> &nbsp;Vacant
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-2 text-gray-600">
-                            {face.rent}
+                          <td className="px-4 py-2">{face.rent}</td>
+                          <td className="px-4 py-2">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                              <img src="/actions.svg" alt="Actions" />
+                            </span>
                           </td>
-                          <td></td>
                         </tr>
                       ))}
                   </React.Fragment>
@@ -267,7 +308,7 @@ export default function Home() {
                     Street Poles
                   </th>
                   <th className="text-left px-4 py-2 font-semibold border-b border-gray-300 hidden sm:table-cell">
-                    Availability
+                    Routes
                   </th>
                   <th className="text-left px-4 py-2 font-semibold border-b border-gray-300 hidden sm:table-cell">
                     Rent
@@ -278,54 +319,102 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {streetpoleMediaItems?.map((item, index) => (
-                  <tr
-                    key={index}
-                    className={
-                      index < streetpoleMediaItems?.length - 1
-                        ? "border-b border-gray-300"
-                        : ""
-                    }
-                  >
-                    <td className="px-4 py-2">
-                      {/* checkbox */}
-                      <input type="checkbox" />
-                    </td>
-                    <td className="px-4 py-2 text-blue-500">{item?.code}</td>
-                    <td className="px-4 py-2 hidden md:table-cell">
-                      {item.location}
-                    </td>
-                    <td className="px-4 py-2 hidden md:table-cell">
-                      {item.closest_landmark}
-                    </td>
-                    <td className="px-4 py-2 hidden sm:table-cell">
-                      {!item?.format ? "None" : item?.format}
-                    </td>
-                    <td className="px-4 py-2 hidden sm:table-cell">
-                      {!item?.number_of_street_poles
-                        ? "None"
-                        : item?.number_of_street_poles}
-                    </td>
-                    <td className="px-4 py-2">
-                      {item?.availability === "Available" ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Accepted
+                {streetpoleMediaItems?.map((item: any, index: number) => (
+                  <React.Fragment key={item.id}>
+                    <tr
+                      key={index}
+                      className={
+                        index < streetpoleMediaItems?.length - 1
+                          ? "border-b border-gray-300 hover:bg-blue-100"
+                          : "hover:bg-blue-100"
+                      }
+                    >
+                      <td className="px-4 py-2 grid items-center justify-center">
+                        <input type="checkbox" />
+                        {expandedRowId === item.id && (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </td>
+                      <td
+                        className="px-4 py-2 text-blue-500"
+                        onClick={() => toggleExpand(item?.id)}
+                      >
+                        {item?.code}
+                      </td>
+                      <td className="px-4 py-2 hidden md:table-cell">
+                        {item.location}
+                      </td>
+                      <td className="px-4 py-2 hidden md:table-cell">
+                        {item.closest_landmark}
+                      </td>
+                      <td className="px-4 py-2 hidden sm:table-cell">
+                        {!item?.format ? "Street Pole" : item?.format}
+                      </td>
+                      <td className="px-4 py-2 hidden sm:table-cell">
+                        {!item?.number_of_street_poles
+                          ? "None"
+                          : item?.number_of_street_poles}
+                      </td>
+                      <td className="px-4 py-2">
+                        {item?.availability === "Available" ? (
+                          <span className="flex text-nowrap items-center px-2.5 py-0.5 rounded-full bg-green-100 text-xs text-green-800">
+                            <Circle size={15} fill="green" /> &nbsp;
+                            {item.routes.length}/{item?.number_of_street_poles}
+                            &nbsp; Occupied
+                          </span>
+                        ) : (
+                          <span className="flex text-nowrap items-center px-2.5 py-0.5 rounded-full bg-red-100 text-xs text-red-800">
+                            <Circle size={15} fill="red" />
+                            &nbsp;Vacant
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 hidden sm:table-cell">
+                        {item?.routes?.reduce(
+                          (acc: number, face: any) =>
+                            acc + (Number(face.price_per_street_pole) || 0),
+                          0
+                        )}
+                      </td>
+                      <td className="px-4 py-2">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <img src="/actions.svg" alt="Actions" />
                         </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                          Declined
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2 hidden sm:table-cell">
-                      {item.rent}
-                    </td>
-                    <td className="px-4 py-2">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        <img src="/actions.svg" alt="Actions" />
-                      </span>
-                    </td>
-                  </tr>
+                      </td>
+                    </tr>
+                    {expandedRowId === item.id &&
+                      item.routes.map((face: any) => (
+                        <tr key={face.id} className="bg-gray-50">
+                          <td className="px-4 py-2">
+                            <input type="checkbox" />
+                          </td>
+                          <td className="px-4 py-2 text-blue-500">{face.id}</td>
+                          <td className="px-4 py-2 text-gray-600">
+                            {item.location}
+                          </td>
+                          <td className="px-4 py-2 text-gray-600 text-ellipsis max-w[120px] overflow-hidden whitespace-nowrap">
+                            {face.description}
+                          </td>
+                          <td className="px-4 py-2 text-gray-600">
+                            {item.format ? item.format : "Street Pole"}
+                          </td>
+                          <td className="px-4 py-2 text-gray-600">
+                            {face.number_of_street_poles}
+                          </td>
+                          <td className="px-4 py-2 text-gray-600">
+                            {face.side_route}
+                          </td>
+                          <td className="px-4 py-2">
+                            {face.price_per_street_pole}
+                          </td>
+                          <td className="px-4 py-2">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                              <img src="/actions.svg" alt="Actions" />
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>

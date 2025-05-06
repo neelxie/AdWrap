@@ -32,10 +32,10 @@ adwrap/
 
 ### Getting Started
 
-```bash
-cd backend
-npm install
-npm run dev
+Go to the backend readme for instructions
+
+```
+
 ```
 
 Configure environment variables in `.env`:
@@ -80,8 +80,6 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
 ```
 
 Sample of how the app looks like:
-
-# import images here
 
 ![Add workspace bottom](./mock-data/AddpageBottom.png)
 ![Add workspace bottom](./mock-data/Addpagebottom1.png)

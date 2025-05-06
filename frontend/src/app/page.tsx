@@ -60,7 +60,7 @@ export default function WorkspaceDashboard() {
     fetchWorkspaces();
     fetchMediaItems();
     return () => {
-      controller.abort();
+      controller?.abort();
     };
   }, [dispatch, search]);
 
@@ -88,9 +88,11 @@ export default function WorkspaceDashboard() {
           />
         </div>
 
-        <Button className="bg-black text-white hover:bg-gray-900">
-          + New Workspace
-        </Button>
+        <Link href="/workspace/new">
+          <Button className="bg-black text-white hover:bg-gray-900">
+            + New Workspace
+          </Button>
+        </Link>
         <Link href="/media">
           <Button className="bg-white text-dark hover:bg-blue-100 outline cursor-pointer">
             <List className="w-4 h-4 text-muted-foreground mr-2" />
@@ -130,7 +132,11 @@ export default function WorkspaceDashboard() {
                     : "hover:bg-blue-100 cursor-pointer"
                 }
               >
-                <td className="px-4 py-2">{workspace.name}</td>
+                <td className="px-4 py-2 cursor-pointer text-blue-600">
+                  <Link href={`/workspace/${workspace?.id}/view`}>
+                    {workspace.name}
+                  </Link>
+                </td>
                 <td className="px-4 py-2">{workspace.email}</td>
                 <td className="px-4 py-2 hidden md:table-cell">
                   {workspace.address}

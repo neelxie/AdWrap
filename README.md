@@ -1,6 +1,6 @@
 # AdWrap
 
-This is a full-stack application for managing media items (such as static billboards and street poles) within workspaces. 
+This is a full-stack application for managing media items (such as static billboards and street poles) within workspaces.
 
 ## Project Structure
 
@@ -17,18 +17,18 @@ adwrap/
 
 ### Tech Stack
 
-* Node.js
-* Express
-* PostgreSQL
-* TypeScript
+- Node.js
+- Express
+- PostgreSQL
+- TypeScript
 
 ### Features
 
-* Workspace management (create, update, delete, list)
-* Media item management (static and street pole types)
-* Media ID auto-increment scoped per workspace and media type (e.g., BB-1, SP-1)
-* Search functionality for media items
-* Input validation and structured types
+- Workspace management (create, update, delete, list)
+- Media item management (static and street pole types)
+- Media ID auto-increment scoped per workspace and media type (e.g., BB-1, SP-1)
+- Search functionality for media items
+- Input validation and structured types
 
 ### Getting Started
 
@@ -51,19 +51,19 @@ PORT=5000
 
 ### Tech Stack
 
-* React
-* Vite
-* TypeScript
-* Redux Toolkit
-* Tailwind CSS
-* ShadCN UI
+- React
+- Vite
+- TypeScript
+- Redux Toolkit
+- Tailwind CSS
+- ShadCN UI
 
 ### Features
 
-* Multi-step form for workspace and media item setup
-* Dashboard view of workspaces
-* Search functionality for media items by face, location, etc.
-* Pagination, filtering, and tabbed interface for media types
+- Multi-step form for workspace and media item setup
+- Dashboard view of workspaces
+- Search functionality for media items by face, location, etc.
+- Pagination, filtering, and tabbed interface for media types
 
 ### Getting Started
 
@@ -76,5 +76,23 @@ npm run dev
 Configure environment variables in `.env`:
 
 ```
-VITE_API_BASE_URL=http://localhost:5000
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
 ```
+
+Sample of how the app looks like:
+
+# import images here
+
+![Add workspace bottom](./mock-data/AddpageBottom.png)
+![Add workspace bottom](./mock-data/Addpagebottom1.png)
+![Add static media](./mock-data/AddStaticmedia.png)
+![Add streetpole](./mock-data/Addstreetpole.png)
+![Add workspace ](./mock-data/createworkspace.png)
+![Media Items unclicked](./mock-data/mediaUnclicked.png)
+![Media Items clicked](./mock-data/mediaItemsclicked.png)
+![workspace search](./mock-data/searchfunctionality.png)
+![Static Media clicked](./mock-data/staicmediaClicked.png)
+![Static workspace](./mock-data/staticworkspace.png)
+![workspaces](./mock-data/workspaces.png)
+![workspace](./mock-data/workspaceview.png)
+![workspace update/delete](./mock-data/updatedeletefunction.png)

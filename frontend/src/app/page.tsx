@@ -23,6 +23,7 @@ import Link from "next/link";
 
 export default function WorkspaceDashboard() {
   const [search, setSearch] = useState("");
+  const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
   const dispatch = useDispatch();
   const workspaces = useSelector(
     (state: RootState) => state.workspace.workspaces
@@ -62,6 +63,12 @@ export default function WorkspaceDashboard() {
       controller.abort();
     };
   }, [dispatch, search]);
+
+  useEffect(() => {
+    const handleClickOutside = () => setMenuOpenFor(null);
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, []);
 
   return (
     <main className="p-8 max-w-6xl mx-auto bg-white">
@@ -131,10 +138,40 @@ export default function WorkspaceDashboard() {
                 <td className="px-4 py-2 hidden sm:table-cell">
                   {workspace.location}
                 </td>
-                <td className="px-4 py-2">
+                <td
+                  className="px-4 py-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpenFor((prev) =>
+                      prev === workspace.id ? null : workspace.id
+                    );
+                  }}
+                >
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                     <img src="/actions.svg" alt="Actions" />
                   </span>
+                  {menuOpenFor === workspace.id && (
+                    <div className="absolute mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                      <button
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                        onClick={() => {
+                          setMenuOpenFor(null);
+                          // handleUpdate(item)
+                        }}
+                      >
+                        Update
+                      </button>
+                      <button
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        onClick={() => {
+                          setMenuOpenFor(null);
+                          // handleDelete(item)
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}

@@ -5,6 +5,7 @@ import { setMediaItem } from "@/redux/features/mediaItem/mediaItemSlice";
 import { setWorkspace } from "@/redux/features/workspace/workspaceSlice";
 import { RootState } from "@/redux/store";
 import {
+  ArrowLeftFromLine,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -15,6 +16,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
+import Link from "next/link";
 type StaticMediaFace = {
   id: string;
   mediaItemId: string; // foreign key
@@ -26,6 +28,7 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const dispatch = useDispatch();
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+  const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
 
   const mediaItems = useSelector(
     (state: RootState) => state.mediaItem.mediaItems
@@ -38,25 +41,36 @@ export default function Home() {
     setExpandedRowId((prev) => (prev === id ? null : id));
   };
 
-  useEffect(() => {
-    const fetchMediaItems = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/media/`
-        );
-        const data = await res.json();
-        dispatch(setMediaItem(data.data));
-      } catch (error) {
-        console.error("Failed to fetch media items:", error);
-      }
-    };
+  const fetchMediaItems = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/media/`
+      );
+      const data = await res.json();
+      dispatch(setMediaItem(data.data));
+    } catch (error) {
+      console.error("Failed to fetch media items:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchMediaItems();
-  }, [dispatch, search]);
-  console.log(expandedRowId);
-  console.log(mediaItems);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = () => setMenuOpenFor(null);
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, []);
+
   return (
     <main className="p-8 max-w-6xl mx-auto bg-white">
+      <Link href="/">
+        <Button className="bg-blue-500 text-white cursor-pointer">
+          <ArrowLeftFromLine className="w-4 h-4 mr-2" />
+          Home
+        </Button>
+      </Link>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Media Items</h1>
       </div>
@@ -154,15 +168,15 @@ export default function Home() {
                         )}
                       </td>
                       <td
-                        className="px-4 py-2 text-blue-500"
+                        className="px-4 py-2 text-blue-500 cursor-pointer"
                         onClick={() => toggleExpand(item?.id)}
                       >
                         {item?.code}
                       </td>
-                      <td className="px-4 py-2 hidden md:table-cell text-ellipsis max-w[150px] overflow-hidden whitespace-nowrap">
+                      <td className="px-4 py-2 hidden md:table-cell text-ellipsis max-w[150px] overflow-hidden text-nowrap">
                         {item?.location}
                       </td>
-                      <td className="px-4 py-2 hidden sm:table-cell text-ellipsis max-w[150px] overflow-hidden whitespace-nowrap">
+                      <td className="px-4 py-2 hidden sm:table-cell text-ellipsis max-w[150px] overflow-hidden text-nowrap">
                         {item?.closest_landmark}
                       </td>
                       <td className="px-4 py-2 hidden sm:table-cell">
@@ -208,10 +222,40 @@ export default function Home() {
                           0
                         )}
                       </td>
-                      <td className="px-4 py-2">
+                      <td
+                        className="px-4 py-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMenuOpenFor((prev) =>
+                            prev === item.id ? null : item.id
+                          );
+                        }}
+                      >
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                           <img src="/actions.svg" alt="Actions" />
                         </span>
+                        {menuOpenFor === item.id && (
+                          <div className="absolute mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                            <button
+                              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                              onClick={() => {
+                                setMenuOpenFor(null);
+                                // handleUpdate(item)
+                              }}
+                            >
+                              Update
+                            </button>
+                            <button
+                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                              onClick={() => {
+                                setMenuOpenFor(null);
+                                // handleDelete(item)
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                     {expandedRowId === item.id &&
@@ -245,11 +289,41 @@ export default function Home() {
                             )}
                           </td>
                           <td className="px-4 py-2">{face.rent}</td>
-                          <td className="px-4 py-2">
+                          <td
+                            className="px-4 py-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setMenuOpenFor((prev) =>
+                                prev === item.id ? null : item.id
+                              );
+                            }}
+                          >
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                               <img src="/actions.svg" alt="Actions" />
                             </span>
                           </td>
+                          {menuOpenFor === item.id && (
+                            <div className="absolute mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                              <button
+                                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                                onClick={() => {
+                                  setMenuOpenFor(null);
+                                  // handleUpdate(item)
+                                }}
+                              >
+                                Update
+                              </button>
+                              <button
+                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                onClick={() => {
+                                  setMenuOpenFor(null);
+                                  // handleDelete(item)
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
                         </tr>
                       ))}
                   </React.Fragment>
@@ -268,7 +342,7 @@ export default function Home() {
               Each page shows a maximum of 5 items
             </span>
             <div className="flex space-x-2">
-              <span className="px-3 py-1 text-sm">Sowing 1 of 3 Media</span>
+              <span className="px-3 py-1 text-sm">Showing 1 of 3 Media</span>
 
               <div className="underline text-blue-600">View All</div>
             </div>
@@ -292,7 +366,7 @@ export default function Home() {
                   <th className="text-left px-4 py-2 font-semibold border-b border-gray-300">
                     <input type="checkbox" />
                   </th>
-                  <th className="text-left px-4 py-2 font-semibold border-b border-gray-300">
+                  <th className="text-left text-nowrap px-4 py-2 font-semibold border-b border-gray-300">
                     Media ID
                   </th>
                   <th className="text-left px-4 py-2 font-semibold border-b border-gray-300">
@@ -301,7 +375,7 @@ export default function Home() {
                   <th className="text-left px-4 py-2 font-semibold border-b border-gray-300 hidden md:table-cell">
                     Description
                   </th>
-                  <th className="text-left px-4 py-2 font-semibold border-b border-gray-300 hidden sm:table-cell">
+                  <th className="text-left text-nowrap px-4 py-2 font-semibold border-b border-gray-300 hidden sm:table-cell">
                     Media format
                   </th>
                   <th className="text-left px-4 py-2 font-semibold border-b border-gray-300 hidden sm:table-cell">
@@ -336,12 +410,12 @@ export default function Home() {
                         )}
                       </td>
                       <td
-                        className="px-4 py-2 text-blue-500"
+                        className="px-4 py-2 text-blue-500 cursor-pointer"
                         onClick={() => toggleExpand(item?.id)}
                       >
                         {item?.code}
                       </td>
-                      <td className="px-4 py-2 hidden md:table-cell">
+                      <td className="overflow-hidden text-ellipsis text-nowrap max-w-[130px] px-4 py-2 hidden md:table-cell">
                         {item.location}
                       </td>
                       <td className="px-4 py-2 hidden md:table-cell">
@@ -376,20 +450,53 @@ export default function Home() {
                           0
                         )}
                       </td>
-                      <td className="px-4 py-2">
+                      <td
+                        className="px-4 py-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMenuOpenFor((prev) =>
+                            prev === item.id ? null : item.id
+                          );
+                        }}
+                      >
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                           <img src="/actions.svg" alt="Actions" />
                         </span>
+                        {menuOpenFor === item.id && (
+                          <div className="absolute mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                            <button
+                              className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                              onClick={() => {
+                                setMenuOpenFor(null);
+                                // handleUpdate(item)
+                              }}
+                            >
+                              Update
+                            </button>
+                            <button
+                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                              onClick={() => {
+                                setMenuOpenFor(null);
+                                // handleDelete(item)
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                     {expandedRowId === item.id &&
                       item.routes.map((face: any) => (
-                        <tr key={face.id} className="bg-gray-50">
+                        <tr
+                          key={face.id}
+                          className="bg-gray-50 hover:bg-blue-100"
+                        >
                           <td className="px-4 py-2">
                             <input type="checkbox" />
                           </td>
                           <td className="px-4 py-2 text-blue-500">{face.id}</td>
-                          <td className="px-4 py-2 text-gray-600">
+                          <td className="px-4 py-2 text-gray-600 overflow-hidden text-ellipsis text-nowrap max-w-[150px]">
                             {item.location}
                           </td>
                           <td className="px-4 py-2 text-gray-600 text-ellipsis max-w[120px] overflow-hidden whitespace-nowrap">
@@ -407,10 +514,40 @@ export default function Home() {
                           <td className="px-4 py-2">
                             {face.price_per_street_pole}
                           </td>
-                          <td className="px-4 py-2">
+                          <td
+                            className="px-4 py-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setMenuOpenFor((prev) =>
+                                prev === item.id ? null : item.id
+                              );
+                            }}
+                          >
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                               <img src="/actions.svg" alt="Actions" />
                             </span>
+                            {menuOpenFor === item.id && (
+                              <div className="absolute mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                                <button
+                                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                                  onClick={() => {
+                                    setMenuOpenFor(null);
+                                    // handleUpdate(item)
+                                  }}
+                                >
+                                  Update
+                                </button>
+                                <button
+                                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                  onClick={() => {
+                                    setMenuOpenFor(null);
+                                    // handleDelete(item)
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -430,10 +567,21 @@ export default function Home() {
               Each page shows a maximum of 5 items
             </span>
             <div className="flex space-x-2">
-              <Button disabled>&laquo; Previous</Button>
-              <span className="px-3 py-1 text-sm">1 of 3</span>
-              <Button>Next &raquo;</Button>
+              <span className="px-3 py-1 text-sm">
+                Showing 1 of 3 Street Poles
+              </span>
+
+              <div className="underline text-blue-600">View All</div>
             </div>
+          </div>
+          <div className="flex align-center justify-center">
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-400">
+              <ChevronLeft className="w-3 h-3" />
+            </span>
+            <span className="px-3 py-1 text-sm">1 of 3</span>
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-400">
+              <ChevronRight className="w-3 h-3" />
+            </span>
           </div>
         </TabsContent>
       </Tabs>
